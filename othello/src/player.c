@@ -65,7 +65,7 @@ Evaluation Player_beginner_search(Player* player, Othello* othello, const PointL
         else{
             // 探索をする
             PointList nextList;
-            Othello_change(&othelloEval);
+            Othello_changeTurn(&othelloEval);
 
             Othello_moveList(othello, &nextList);
 

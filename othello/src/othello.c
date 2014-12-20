@@ -185,11 +185,11 @@ void Othello_reverse(Othello* othello, int x, int y){
     int i;
 
     // 手番取得
-    if(Othello_turn(othello) == OTHELLO_PLAYER_BLACK){
+    if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_BLACK){
         me       = OTHELLO_BOARD_BLACK;
         opponent = OTHELLO_BOARD_WHITE;
     }
-    else if(Othello_turn(othello) == OTHELLO_PLAYER_WHITE){
+    else if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_WHITE){
         me       = OTHELLO_BOARD_WHITE;
         opponent = OTHELLO_BOARD_BLACK;
     }
@@ -215,10 +215,10 @@ void Othello_reverse(Othello* othello, int x, int y){
 }
 
 void Othello_loose(Othello* othello){
-    if(Othello_turn(othello) == OTHELLO_PLAYER_BLACK){
+    if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_BLACK){
         othello->win = OTHELLO_WINNER_WHITE;
     }
-    else if(Othello_turn(othello) == OTHELLO_PLAYER_WHITE){
+    else if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_WHITE){
         othello->win = OTHELLO_WINNER_BLACK;
     }
     else{
@@ -227,7 +227,7 @@ void Othello_loose(Othello* othello){
 }
 
 void Othello_pass(Othello* othello){
-    Othello_change(othello);
+    Othello_changeTurn(othello);
 }
 
 
@@ -266,7 +266,7 @@ BOOL Othello_isGameEnd(const Othello* othello){
     }
 }
 
-int Othello_turn(const Othello* othello){
+int Othello_whosTurnIsNow(const Othello* othello){
     return othello->who;
 }
 
@@ -293,7 +293,7 @@ void Othello_move(Othello* othello, Player* player){
     // 打つ
     if(Othello_isMoveThis(othello, x, y) != FALSE){
         Othello_moveThis(othello, x, y);
-        Othello_change(othello);
+        Othello_changeTurn(othello);
     }
     else{
         // TODO 無限ループ対策が必要
@@ -304,10 +304,10 @@ void Othello_move(Othello* othello, Player* player){
 void Othello_moveThis(Othello* othello, int x, int y){
     if(Othello_isMoveThis(othello, x, y) != FALSE){
         int disc;
-        if(Othello_turn(othello) == OTHELLO_PLAYER_BLACK){
+        if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_BLACK){
             disc = OTHELLO_BOARD_BLACK;
         }
-        else if(Othello_turn(othello) == OTHELLO_PLAYER_WHITE){
+        else if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_WHITE){
             disc = OTHELLO_BOARD_WHITE;
         }
         else{
@@ -325,11 +325,11 @@ BOOL Othello_isMoveThis(const Othello* othello, int x, int y){
     int me;
     int opponent;
     int count = 0;
-    if(Othello_turn(othello) == OTHELLO_PLAYER_BLACK){
+    if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_BLACK){
         me       = OTHELLO_BOARD_BLACK;
         opponent = OTHELLO_BOARD_WHITE;
     }
-    else if(Othello_turn(othello) == OTHELLO_PLAYER_WHITE){
+    else if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_WHITE){
         me       = OTHELLO_BOARD_WHITE;
         opponent = OTHELLO_BOARD_BLACK;
     }
@@ -359,12 +359,12 @@ BOOL Othello_isMoveThis(const Othello* othello, int x, int y){
     }
 }
 
-void Othello_change(Othello* othello){
+void Othello_changeTurn(Othello* othello){
     othello->turn++;
-    if(Othello_turn(othello) == OTHELLO_PLAYER_BLACK){
+    if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_BLACK){
         othello->who = OTHELLO_PLAYER_WHITE;
     }
-    else if(Othello_turn(othello) == OTHELLO_PLAYER_WHITE){
+    else if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_WHITE){
         othello->who = OTHELLO_PLAYER_BLACK;
     }
     else{
@@ -373,7 +373,7 @@ void Othello_change(Othello* othello){
 }
 
 
-void Othello_updateWinner(Othello* othello){
+void Othello_updateGameEnd(Othello* othello){
     int countBlack, countWhite;
     countBlack = Othello_count(othello, OTHELLO_BOARD_BLACK);
     countWhite = Othello_count(othello, OTHELLO_BOARD_WHITE);
@@ -408,7 +408,7 @@ void Othello_updateWinner(Othello* othello){
     }
 }
 
-int Othello_count(Othello* othello, int color){
+int Othello_count(const Othello* othello, int color){
     int x, y;
     int count = 0;
     for(x = 0; x < OTHELLO_X_MAX; x++){
@@ -432,7 +432,7 @@ BOOL Othello_isNotMoveAll(const Othello* othello){
     // 今の手番のプレイヤーに打てる場所があるか？
     isMoveNow = Othello_isMoveSomewhere(&tempOthello);
     // もう片方のプレイヤーに打てる場所があるか？
-    Othello_change(&tempOthello);
+    Othello_changeTurn(&tempOthello);
     isMoveNext = Othello_isMoveSomewhere(&tempOthello);
 
     if(isMoveNow == FALSE && isMoveNext == FALSE){
@@ -491,10 +491,10 @@ void PointList_Append(PointList* pointList, int x, int y){
     }
 }
 
-void PointList_AppendList(PointList* pointList, const PointList* sourceList){
+void PointList_AppendList(PointList* destList, const PointList* sourceList){
     int i;
     for(i = 0; i < sourceList->length; i++){
-        PointList_Append(pointList, sourceList->x[i], sourceList->y[i]);
+        PointList_Append(destList, sourceList->x[i], sourceList->y[i]);
     }
 }
 
