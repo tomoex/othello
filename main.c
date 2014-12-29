@@ -7,8 +7,8 @@
 
 
 #include "common_type.h"
-#include "othello/othello.h"
-#include "ui/ui.h"
+#include "othello.h"
+#include "ui.h"
 
 
 #include <stdio.h>

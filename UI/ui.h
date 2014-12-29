@@ -8,7 +8,7 @@
 #ifndef UI_H_
 #define UI_H_
 
-#include "../othello/othello.h"
+#include "othello.h"
 
 typedef struct{
 

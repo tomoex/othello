@@ -5,7 +5,7 @@
  *      Author: tomoe
  */
 
-#include "../ui.h"
+#include "ui.h"
 #include <stdio.h>
 
 void OthelloUI_update(OthelloUI* ui, Othello* othello){

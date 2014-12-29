@@ -5,7 +5,7 @@
  *      Author: tomoe
  */
 
-#include "../othello.h"
+#include "othello.h"
 #include <stddef.h>
 #include <string.h>
 #include <assert.h>

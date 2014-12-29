@@ -6,7 +6,7 @@
 #ifndef OTHELLO_H_
 #define OTHELLO_H_
 
-#include "../common_type.h"
+#include "common_type.h"
 
 
 /*---------------------------------------------------------------

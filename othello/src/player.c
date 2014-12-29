@@ -6,7 +6,7 @@
  */
 
 
-#include "../othello.h"
+#include "othello.h"
 
 #include <stdlib.h>
 
