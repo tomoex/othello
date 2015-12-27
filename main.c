@@ -21,28 +21,23 @@ int main(){
     Player playerWhite;
 
     /* プレイヤー初期化 */
-    Player_npcBeginner(&playerBlack, OTHELLO_PLAYER_BLACK);
+    Player_npcBeginner2(&playerBlack, OTHELLO_PLAYER_BLACK);
     Player_npcFool(&playerWhite, OTHELLO_PLAYER_WHITE);
 
     /* オセロ盤初期化 */
     Othello_initialize(&othello);
 
+    /* プレイヤー設定 */
+    Othello_configure(&othello, &playerBlack, &playerWhite);
+
     /* 試合終了まで交互に打つ */
     while(Othello_isGameEnd(&othello) == FALSE){
         OthelloUI_update(&ui, &othello);
 
-        if(Othello_whosTurnIsNow(&othello) == OTHELLO_PLAYER_BLACK){
-            Othello_move(&othello, &playerBlack);
-        }
-        else if(Othello_whosTurnIsNow(&othello) == OTHELLO_PLAYER_WHITE){
-            Othello_move(&othello, &playerWhite);
-        }
-        else{
-            assert(0);
-        }
-        Othello_updateGameEnd(&othello);
+        Othello_update(&othello);
     }
 
+    /* 最終結果表示 */
     OthelloUI_update(&ui, &othello);
 
     return 0;

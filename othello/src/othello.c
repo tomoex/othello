@@ -90,12 +90,12 @@ int Othello_countOfReverse(const Othello* othello, int x, int y, int me, int opp
         }
 
         // 裏返し判定
-        if(othello->board[x_][y_] == opponent){
+        if(Board_get(&othello->board, x_, y_) == opponent){
             // 相手の色が連続して存在→次の位置を判定
             reverse++;
             PointList_Append(&tempList, x_, y_);
         }
-        else if(othello->board[x_][y_] == me){
+        else if(Board_get(&othello->board, x_, y_) == me){
             // 自分の色が存在→挟めているかチェックしbreak
             if(reverse > 0){
                 isOutflank = TRUE;
@@ -210,7 +210,7 @@ void Othello_reverse(Othello* othello, int x, int y){
 
     // 裏返す
     for(i = 0; i < list.length; i++){
-        othello->board[list.x[i]][list.y[i]] = me;
+        Board_set(&othello->board, list.x[i], list.y[i], me);
     }
 }
 
@@ -236,26 +236,39 @@ void Othello_pass(Othello* othello){
 // public
 
 void Othello_initialize(Othello* othello){
-    int x, y;
-
     othello->who  = OTHELLO_PLAYER_BLACK;
     othello->turn = 0;
     othello->win  = OTHELLO_WINNER_NONE;
 
-    for(x = 0; x < OTHELLO_X_MAX; x++){
-        for(y = 0; y < OTHELLO_Y_MAX; y++){
-            othello->board[x][y] = OTHELLO_BOARD_NONE;
-        }
-    }
-    othello->board[3][3] = OTHELLO_BOARD_WHITE;
-    othello->board[4][4] = OTHELLO_BOARD_WHITE;
-    othello->board[3][4] = OTHELLO_BOARD_BLACK;
-    othello->board[4][3] = OTHELLO_BOARD_BLACK;
+    Board_initialize(&othello->board);
+    Board_setWhite(&othello->board, 3, 3);
+    Board_setWhite(&othello->board, 4, 4);
+    Board_setBlack(&othello->board, 3, 4);
+    Board_setBlack(&othello->board, 4, 3);
 }
 
 void Othello_copy(const Othello* src, Othello* dist){
     memcpy(dist, src, sizeof(Othello));
 }
+
+void Othello_configure(Othello* othello, Player* playerBlack, Player* playerWhite){
+    othello->playerBlack = playerBlack;
+    othello->playerWhite = playerWhite;
+}
+
+void Othello_update(Othello* othello){
+    if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_BLACK){
+        Othello_move(othello, othello->playerBlack);
+    }
+    else if(Othello_whosTurnIsNow(othello) == OTHELLO_PLAYER_WHITE){
+        Othello_move(othello, othello->playerWhite);
+    }
+    else{
+        assert(0);
+    }
+    Othello_updateGameEnd(othello);
+}
+
 
 BOOL Othello_isGameEnd(const Othello* othello){
     if(othello->win != OTHELLO_WINNER_NONE){
@@ -316,7 +329,7 @@ void Othello_moveThis(Othello* othello, int x, int y){
         // 裏返す
         Othello_reverse(othello, x, y);
         // 打つ
-        othello->board[x][y] = disc;
+        Board_set(&othello->board, x, y, disc);
     }
 
 }
@@ -337,7 +350,7 @@ BOOL Othello_isMoveThis(const Othello* othello, int x, int y){
         assert(0);
     }
 
-    if(othello->board[x][y] == OTHELLO_BOARD_NONE){
+    if(Board_get(&othello->board, x, y) == OTHELLO_BOARD_NONE){
         count += Othello_countOfReverseLeft(othello, x, y, me, opponent, NULL);
         count += Othello_countOfReverseRight(othello, x, y, me, opponent, NULL);
         count += Othello_countOfReverseUp(othello, x, y, me, opponent, NULL);
@@ -413,7 +426,7 @@ int Othello_count(const Othello* othello, int color){
     int count = 0;
     for(x = 0; x < OTHELLO_X_MAX; x++){
         for(y = 0; y < OTHELLO_Y_MAX; y++){
-            if(othello->board[x][y] == color){
+            if(Board_get(&othello->board, x, y) == color){
                 count++;
             }
         }
@@ -479,6 +492,10 @@ int Othello_moveList(const Othello* othello, PointList* list){
     }
 }
 
+const Board* Othello_board(const Othello* othello){
+    return &othello->board;
+}
+
 void PointList_initialize(PointList* pointList){
     pointList->length = 0;
 }
@@ -495,6 +512,60 @@ void PointList_AppendList(PointList* destList, const PointList* sourceList){
     int i;
     for(i = 0; i < sourceList->length; i++){
         PointList_Append(destList, sourceList->x[i], sourceList->y[i]);
+    }
+}
+
+
+
+void Board_initialize(Board* board){
+    int x, y;
+    for(x = 0; x < OTHELLO_X_MAX; x++){
+        for(y = 0; y < OTHELLO_Y_MAX; y++){
+            board->board[x][y] = OTHELLO_BOARD_NONE;
+        }
+    }
+}
+
+void Board_copy(const Board* src, Board* dist){
+    memcpy(dist, src, sizeof(Board));
+}
+
+void Board_setBlack(Board* board, int x, int y){
+    board->board[x][y] = OTHELLO_BOARD_BLACK;
+}
+
+void Board_setWhite(Board* board, int x, int y){
+    board->board[x][y] = OTHELLO_BOARD_WHITE;
+}
+
+void Board_setNone(Board* board, int x, int y){
+    board->board[x][y] = OTHELLO_BOARD_NONE;
+}
+
+void Board_set(Board* board, int x, int y, int value){
+    board->board[x][y] = value;
+}
+
+
+int Board_get(const Board* board,int x, int y){
+    return board->board[x][y];
+}
+
+void BoardList_initialize(BoardList* boardList){
+    boardList->length = 0;
+}
+
+void BoardList_Append(BoardList* boardList, const Board* board){
+    if(boardList->length < BOARD_LIST_CAPACITY){
+        Board_copy(board, &(boardList->boards[boardList->length]));
+        boardList->length++;
+    }
+}
+
+void BoardList_AppendList(BoardList* destList, const BoardList* sourceList){
+    int i;
+    for(i = 0; i < sourceList->length; i++){
+        BoardList_Append(destList, &(sourceList->boards[i]));
     }
 }
 

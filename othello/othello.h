@@ -27,10 +27,14 @@ typedef struct PointList_t PointList;
 #define OTHELLO_X_MAX 8     //! 盤面の横方向のマス目の数
 #define OTHELLO_Y_MAX 8     //! 盤面の縦方向のマス目の数
 
+/***************************************************************************************************
+ * 盤面
+ ***************************************************************************************************/
+
 /**
- * オセロ構造体
+ * 盤面構造体
  *
- * 盤面と試合の状態を保持する。
+ * 盤面の状態を保持する。
  *
  * 盤面は左上をx,y = 0,0として表す
  *
@@ -55,10 +59,23 @@ typedef struct PointList_t PointList;
  *
  */
 typedef struct{
+    int board[OTHELLO_X_MAX][OTHELLO_Y_MAX];
+}Board;
+
+
+/**
+ * オセロ構造体
+ *
+ * 盤面と試合の状態を保持する。
+ */
+typedef struct{
     int who;                                        //! 現在のターンで打つプレイヤーの種別
     int turn;                                       //! 現在のターン数。初期状態を0ターン目とする
-    int board[OTHELLO_X_MAX][OTHELLO_Y_MAX];        //! 盤面
+    //int board[OTHELLO_X_MAX][OTHELLO_Y_MAX];        //! 盤面
+    Board board;                                    //! 盤面
     int win;                                        //! 試合の勝者
+    Player* playerBlack;
+    Player* playerWhite;
 }Othello;
 
 
@@ -112,6 +129,15 @@ void Othello_initialize(Othello* othello);
  * @param[out] dist コピー先
  */
 void Othello_copy(const Othello* src, Othello* dist);
+
+
+/*--------------------------------------------------------------------------------------------------
+ * ゲーム操作
+ *-------------------------------------------------------------------------------------------------*/
+
+void Othello_configure(Othello* othello, Player* playerBlack, Player* playerWhite);
+
+void Othello_update(Othello* othello);
 
 /*--------------------------------------------------------------------------------------------------
  * 石を打つ
@@ -226,6 +252,26 @@ void Othello_updateGameEnd(Othello* othello);
 void Othello_changeTurn(Othello* othello);
 
 /*--------------------------------------------------------------------------------------------------
+ * 盤面
+ *-------------------------------------------------------------------------------------------------*/
+
+const Board* Othello_board(const Othello* othello);
+
+void Board_initialize(Board* board);
+
+void Board_copy(const Board* src, Board* dist);
+
+void Board_setBlack(Board* board, int x, int y);
+
+void Board_setWhite(Board* board, int x, int y);
+
+void Board_setNone(Board* board, int x, int y);
+
+void Board_set(Board* board, int x, int y, int value);
+
+int Board_get(const Board* board,int x, int y);
+
+/*--------------------------------------------------------------------------------------------------
  * その他
  *-------------------------------------------------------------------------------------------------*/
 
@@ -288,6 +334,36 @@ void PointList_AppendList(PointList* destList, const PointList* sourceList);
 
 
 /***************************************************************************************************
+ * 盤面リスト
+ ***************************************************************************************************/
+
+struct BoardList_t;
+typedef struct BoardList_t BoardList;
+
+#define BOARD_LIST_CAPACITY 64      //! BoardListに格納可能な座標の最大数
+
+/**
+ * オセロ盤面の座標リスト
+ */
+struct BoardList_t{
+    int length;                     //! 有効な座標数
+    Board boards[BOARD_LIST_CAPACITY];
+};
+
+
+/*--------------------------------------------------------------------------------------------------
+ * リスト操作
+ *-------------------------------------------------------------------------------------------------*/
+
+void BoardList_initialize(BoardList* boardList);
+
+void BoardList_Append(BoardList* boardList, const Board* board);
+
+void BoardList_AppendList(BoardList* destList, const BoardList* sourceList);
+
+
+
+/***************************************************************************************************
  * プレイヤー
  ***************************************************************************************************/
 /**
@@ -318,6 +394,9 @@ void Player_npcFool(Player* player, int color);
  * @param[in]   color  黒(OTHELLO_PLAYER_BLACK) or 白(OTHELLO_PLAYER_WHITE)
  */
 void Player_npcBeginner(Player* player, int color);
+
+void Player_npcBeginner2(Player* player, int color);
+
 
 /*--------------------------------------------------------------------------------------------------
  * 思考ルーチン
